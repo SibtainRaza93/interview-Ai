@@ -9,4 +9,11 @@ const authRouter = express.Router();
 
 authRouter.post("/register",authController.registerUserController)
 
+/**
+ * @route POST /api/auth/login
+ * @access public
+ */
+
+authRouter.post("/login", authController.loginUserController)
+
 module.exports = authRouter
