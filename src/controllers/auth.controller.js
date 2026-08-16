@@ -8,7 +8,7 @@ async function registerUserController(req, res){
 
  /   console.log("REQ BODY:", req.body)
     console.log("USERNAME:", username)
-    console.log("EMAIL:", email)
+    console.log("EMAIL:",email)
 
     if(!username || !email || !password){
         return res.status(400).json({
@@ -24,7 +24,7 @@ async function registerUserController(req, res){
             message: "Account already exists with this email or username"
         })
     }
-    const hash = await bcrypt.hash(password, 10)
+    const hash = await bcrypt.hash(password, 10) // use for hash the password 
 
     const user = await userModel.create({
         username,
@@ -35,7 +35,7 @@ async function registerUserController(req, res){
     const token = jwt.sign(
         {id: user._id, username: user.username},
         process.env.JWT_SECRET,
-        { expiresIn: "7d"}
+        { expiresIn: "7d"}  // it will expire after 7 days
     )
     res.cookie("token", token)
 
