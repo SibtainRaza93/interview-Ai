@@ -16,10 +16,12 @@ interviewRouter.post(
 )
 interviewRouter.get("/report/:interviewId",
     authmiddleware.authUser,
-    interviewController.generateInterViewReportController)
+    interviewController.getInterviewReportByIdController)
 
     // GET/api/interview/
 interviewRouter.get("/",
     authmiddleware.authUser,
-    interviewController.generateInterViewReportController)
+    interviewController.getAllInterviewReportsController)
+
+interviewRouter.post("/resume/pdf/:interviewReportId", authmiddleware.authUser,interviewController.generateResumePdfController)
 module.exports = interviewRouter
