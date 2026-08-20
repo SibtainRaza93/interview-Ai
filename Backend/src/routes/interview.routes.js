@@ -14,5 +14,12 @@ interviewRouter.post(
     upload.single("resume"),
     interviewController.generateInterViewReportController
 )
+interviewRouter.get("/report/:interviewId",
+    authmiddleware.authUser,
+    interviewController.generateInterViewReportController)
 
+    // GET/api/interview/
+interviewRouter.get("/",
+    authmiddleware.authUser,
+    interviewController.generateInterViewReportController)
 module.exports = interviewRouter
