@@ -10,7 +10,7 @@ const ai = new GoogleGenAI({
 // UPDATED: Added retry logic with automatic fallback model
 async function generateContentWithRetry(request, maxRetries = 3) {
 
-    // UPDATED: First try the current model, then fallback if it has 503 errors
+    // UPDATED: Models to try
     const models = [
         request.model,
         "gemini-3.5-flash",
@@ -20,28 +20,26 @@ async function generateContentWithRetry(request, maxRetries = 3) {
 
     for (const model of models) {
 
-        // UPDATED: Avoid trying the same model twice
-        if (
-            model !== request.model &&
-            models.indexOf(model) !== models.lastIndexOf(model)
-        ) {
-            continue;
-        }
+        console.log(`Using Gemini model: ${model}`);
 
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
 
             try {
-                // UPDATED: Log which model is being used
+
                 console.log(
-                    `Trying model: ${model} | Attempt: ${attempt}/${maxRetries}`
+                    `Attempt ${attempt}/${maxRetries} with ${model}`
                 );
 
-                return await ai.models.generateContent({
+                const response = await ai.models.generateContent({
                     ...request,
-
-                    // UPDATED: Use current model or fallback model
-                    model,
+                    model: model,
                 });
+
+                console.log(
+                    `Success with model: ${model}`
+                );
+
+                return response;
 
             } catch (error) {
 
@@ -51,27 +49,36 @@ async function generateContentWithRetry(request, maxRetries = 3) {
                     error?.status ||
                     error?.error?.code;
 
-                // If the error is not 503, stop immediately
+                console.log(
+                    `Gemini error status: ${statusCode}`
+                );
+
+                // If this is not a temporary 503 error,
+                // don't retry it.
                 if (statusCode !== 503) {
                     throw error;
                 }
 
-                // If all retries for this model are finished,
-                // move to the fallback model
+                console.log(
+                    `Model ${model} is currently unavailable.`
+                );
+
+                // If all attempts for this model are finished,
+                // move to the next model.
                 if (attempt === maxRetries) {
 
                     console.log(
-                        `Model ${model} failed after ${maxRetries} attempts.`
+                        `${model} failed after ${maxRetries} attempts.`
                     );
 
                     break;
                 }
 
-                // UPDATED: Wait before retrying
+                // Wait before retrying
                 const delay = attempt * 2000;
 
                 console.log(
-                    `Gemini API busy. Retrying in ${delay / 1000} seconds...`
+                    `Retrying in ${delay / 1000} seconds...`
                 );
 
                 await new Promise((resolve) =>
@@ -81,7 +88,7 @@ async function generateContentWithRetry(request, maxRetries = 3) {
         }
     }
 
-    // UPDATED: Throw the final error if all models fail
+    // Both models failed
     throw lastError;
 }
 
