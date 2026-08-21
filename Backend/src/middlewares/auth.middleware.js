@@ -3,9 +3,9 @@ const tokenBlacklist = require("../models/blacklist.models")
 const tokenBlacklistModel = require("../models/blacklist.models")
 
 async function authUser(req, res, next) {
-    // console.log("cookies:", req.cookies)
-    // console.log("authorization:", req.headers.authorization)
-    // console.log("jwt secret exists:", !!process.env.JWT_SECRET)
+   console.log("cookies:", req.cookies)
+    console.log("authorization:", req.headers.authorization)
+    console.log("jwt secret exists:", !!process.env.JWT_SECRET)
     const token = req.cookies.token
     if (!token) {
         return res.status(401).json({
